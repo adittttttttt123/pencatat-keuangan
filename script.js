@@ -282,4 +282,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start App by Fetching API
     fetchTransactions();
+
+    // Profile Dropdown Toggle
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    const profileDropdown = document.getElementById('profile-dropdown');
+
+    if (userMenuBtn && profileDropdown) {
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!profileDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                profileDropdown.classList.remove('show');
+            }
+        });
+    }
 });

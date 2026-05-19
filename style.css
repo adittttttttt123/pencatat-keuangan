@@ -110,11 +110,120 @@ header h1 {
     color: var(--dark);
 }
 
+/* User Profile */
+.user-profile-container {
+    position: relative;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.user-info:hover {
+    background-color: #f8f9fa;
+}
+
 .user-info img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
+}
+
+.user-info i {
+    font-size: 0.8rem;
+    color: var(--gray);
+}
+
+.ms-2 {
+    margin-left: 0.5rem;
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 10px;
+    background-color: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--transition);
+    z-index: 1000;
+}
+
+.profile-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-header img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-details h4 {
+    font-size: 1rem;
+    color: var(--dark);
+    margin-bottom: 3px;
+}
+
+.profile-details p {
+    font-size: 0.8rem;
+    color: var(--gray);
+}
+
+.profile-menu {
+    list-style: none;
+    padding: 10px 0;
+}
+
+.profile-menu li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    color: var(--dark);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.profile-menu li a:hover {
+    background-color: #f8f9fa;
+    color: var(--primary);
+}
+
+.profile-menu li a i {
+    font-size: 1rem;
+    color: var(--gray);
+    width: 20px;
+    text-align: center;
+}
+
+.profile-menu li a:hover i {
+    color: var(--primary);
 }
 
 /* Cards */
