@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2pdf for PDF Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -61,21 +63,27 @@
                         <h3>Total Saldo</h3>
                         <p id="total-balance">Rp 0</p>
                     </div>
-                    <i class="fas fa-money-bill-wave"></i>
+                    <div class="icon-wrapper icon-balance">
+                        <i class="fas fa-wallet"></i>
+                    </div>
                 </div>
                 <div class="card income">
                     <div class="card-info">
                         <h3>Pemasukan</h3>
                         <p id="total-income">Rp 0</p>
                     </div>
-                    <i class="fas fa-arrow-up"></i>
+                    <div class="icon-wrapper icon-income">
+                        <i class="fas fa-arrow-trend-up"></i>
+                    </div>
                 </div>
                 <div class="card expense">
                     <div class="card-info">
                         <h3>Pengeluaran</h3>
                         <p id="total-expense">Rp 0</p>
                     </div>
-                    <i class="fas fa-arrow-down"></i>
+                    <div class="icon-wrapper icon-expense">
+                        <i class="fas fa-arrow-trend-down"></i>
+                    </div>
                 </div>
             </section>
 
@@ -90,7 +98,7 @@
                         </div>
                         <div class="form-group">
                             <label for="amount">Jumlah (Rp)</label>
-                            <input type="number" id="amount" placeholder="0" required>
+                            <input type="text" id="amount" placeholder="0" required>
                         </div>
                         <div class="form-group">
                             <label for="type">Jenis</label>
@@ -99,14 +107,10 @@
                                 <option value="expense">Pengeluaran</option>
                             </select>
                         </div>
-                        <div class="form-group" id="category-group" style="display: none;">
+                        <div class="form-group" id="category-group">
                             <label for="category">Kategori</label>
-                            <select id="category">
-                                <option value="Makanan">Makanan</option>
-                                <option value="Kos">Kos</option>
-                                <option value="Edukasi">Edukasi</option>
-                                <option value="Hiburan">Hiburan</option>
-                                <option value="Lainnya">Lainnya</option>
+                            <select id="category" required>
+                                <!-- Akan diisi lewat JS berdasarkan jenis transaksi -->
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Simpan Transaksi</button>
@@ -123,9 +127,27 @@
                 </div>
             </section>
 
+            <!-- Chart Section -->
+            <section class="chart-section" style="background: var(--white); padding: 1.5rem; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 2rem;">
+                <h2 style="font-size: 1.2rem; margin-bottom: 1.5rem;">Statistik Arus Kas</h2>
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </section>
+
             <!-- Transactions List -->
             <section class="transactions" id="transactions-section">
-                <h2>Riwayat Transaksi</h2>
+                <div class="transactions-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2 style="margin-bottom: 0;">Riwayat Transaksi</h2>
+                    <div class="filters" style="display: flex; gap: 1rem;">
+                        <input type="text" id="search-tx" placeholder="Cari transaksi..." style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem;">
+                        <select id="filter-type" style="padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem;">
+                            <option value="all">Semua Jenis</option>
+                            <option value="income">Pemasukan</option>
+                            <option value="expense">Pengeluaran</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table id="transactions-table">
                         <thead>

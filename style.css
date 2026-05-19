@@ -84,6 +84,7 @@ body {
     margin-top: auto;
     font-size: 0.9rem;
     color: var(--gray);
+    padding: 0 0 20px 10px;
 }
 
 .watermark strong {
@@ -256,14 +257,34 @@ header h1 {
     font-weight: 700;
 }
 
-.card i {
-    font-size: 2rem;
-    opacity: 0.8;
+.card .icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.card.balance i { color: var(--primary); }
-.card.income i { color: var(--success); }
-.card.expense i { color: var(--danger); }
+.card .icon-wrapper i {
+    font-size: 1.5rem;
+    opacity: 1;
+}
+
+.icon-balance {
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primary);
+}
+
+.icon-income {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: var(--success);
+}
+
+.icon-expense {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--danger);
+}
 
 /* Actions Section */
 .actions {

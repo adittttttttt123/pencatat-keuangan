@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportCsvBtn = document.getElementById('export-csv');
     const exportPdfBtn = document.getElementById('export-pdf');
 
+    const searchTxInput = document.getElementById('search-tx');
+    const filterTypeSelect = document.getElementById('filter-type');
+
     let transactions = [];
 
     // Format currency to Rupiah
@@ -31,14 +34,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Date(dateString).toLocaleDateString('id-ID', options);
     };
 
-    // Show/hide category based on transaction type
-    typeSelect.addEventListener('change', (e) => {
-        if (e.target.value === 'expense') {
-            categoryGroup.style.display = 'block';
+    // Format input currency dynamically
+    amountInput.addEventListener('input', function(e) {
+        let value = this.value.replace(/[^0-9]/g, '');
+        if (value) {
+            this.value = new Intl.NumberFormat('id-ID').format(parseInt(value, 10));
         } else {
-            categoryGroup.style.display = 'none';
+            this.value = '';
         }
     });
+
+    const incomeCategories = ['Gaji', 'Bonus', 'Hasil Usaha', 'Lainnya'];
+    const expenseCategories = ['Makanan', 'Transportasi', 'Hiburan', 'Tabungan', 'Kos', 'Edukasi', 'Lainnya'];
+
+    const updateCategoryOptions = () => {
+        const type = typeSelect.value;
+        const options = type === 'income' ? incomeCategories : expenseCategories;
+        categorySelect.innerHTML = options.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    };
+
+    typeSelect.addEventListener('change', updateCategoryOptions);
+    updateCategoryOptions();
 
     // Fetch transactions from API
     const fetchTransactions = async () => {
@@ -57,9 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const desc = descInput.value.trim();
-        const amount = parseFloat(amountInput.value);
+        const amountStr = amountInput.value.replace(/\./g, '');
+        const amount = parseFloat(amountStr);
         const type = typeSelect.value;
-        const category = type === 'expense' ? categorySelect.value : 'Pemasukan';
+        const category = categorySelect.value;
 
         if (desc === '' || isNaN(amount) || amount <= 0) {
             alert('Silakan masukkan keterangan dan jumlah yang valid.');
@@ -91,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 descInput.value = '';
                 amountInput.value = '';
                 typeSelect.value = 'income';
-                categoryGroup.style.display = 'none';
+                updateCategoryOptions();
             } else {
                 alert(result.message);
             }
@@ -166,12 +183,64 @@ document.addEventListener('DOMContentLoaded', () => {
         totalBalanceEl.innerText = formatRupiah(total);
         totalIncomeEl.innerText = formatRupiah(income);
         totalExpenseEl.innerText = formatRupiah(expense);
+
+        updateChart(income, expense);
     };
+
+    let financeChartInstance = null;
+
+    const updateChart = (income, expense) => {
+        const chartCanvas = document.getElementById('financeChart');
+        if (!chartCanvas) return;
+        
+        const ctx = chartCanvas.getContext('2d');
+        if (financeChartInstance) {
+            financeChartInstance.destroy();
+        }
+        financeChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pemasukan', 'Pengeluaran'],
+                datasets: [{
+                    data: [income, expense],
+                    backgroundColor: ['#2ecc71', '#e74c3c'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    };
+
+    // Filter and Render Transactions
+    const renderTransactions = () => {
+        transactionListEl.innerHTML = '';
+        const searchTerm = searchTxInput ? searchTxInput.value.toLowerCase() : '';
+        const filterType = filterTypeSelect ? filterTypeSelect.value : 'all';
+
+        const filtered = transactions.filter(t => {
+            const matchSearch = t.desc.toLowerCase().includes(searchTerm) || t.category.toLowerCase().includes(searchTerm);
+            const matchType = filterType === 'all' || t.type === filterType;
+            return matchSearch && matchType;
+        });
+
+        filtered.forEach(addTransactionDOM);
+    };
+
+    if (searchTxInput) searchTxInput.addEventListener('input', renderTransactions);
+    if (filterTypeSelect) filterTypeSelect.addEventListener('change', renderTransactions);
 
     // Init App
     const init = () => {
-        transactionListEl.innerHTML = '';
-        transactions.forEach(addTransactionDOM);
+        renderTransactions();
         updateValues();
     };
 
