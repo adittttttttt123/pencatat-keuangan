@@ -14,8 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportCsvBtn = document.getElementById('export-csv');
     const exportPdfBtn = document.getElementById('export-pdf');
 
-    // Initialize transactions array from local storage
-    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    let transactions = [];
 
     // Format currency to Rupiah
     const formatRupiah = (number) => {
@@ -28,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Format Date
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         return new Date(dateString).toLocaleDateString('id-ID', options);
     };
 
@@ -41,13 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Generate random ID
-    const generateID = () => {
-        return Math.floor(Math.random() * 100000000);
+    // Fetch transactions from API
+    const fetchTransactions = async () => {
+        try {
+            const res = await fetch('api.php');
+            const data = await res.json();
+            transactions = data;
+            init();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     };
 
     // Add new transaction
-    transactionForm.addEventListener('submit', (e) => {
+    transactionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const desc = descInput.value.trim();
@@ -61,37 +67,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const transaction = {
-            id: generateID(),
             desc,
             amount,
             type,
-            category,
-            date: new Date().toISOString()
+            category
         };
 
-        transactions.push(transaction);
-        updateLocalStorage();
-        init();
-
-        // Reset form
-        descInput.value = '';
-        amountInput.value = '';
-        typeSelect.value = 'income';
-        categoryGroup.style.display = 'none';
+        try {
+            const res = await fetch('api.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(transaction)
+            });
+            const result = await res.json();
+            
+            if (result.status === 'success') {
+                // Refresh data
+                fetchTransactions();
+                
+                // Reset form
+                descInput.value = '';
+                amountInput.value = '';
+                typeSelect.value = 'income';
+                categoryGroup.style.display = 'none';
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Error saving data:', error);
+        }
     });
 
     // Remove transaction
-    window.removeTransaction = (id) => {
+    window.removeTransaction = async (id) => {
         if (confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
-            transactions = transactions.filter(t => t.id !== id);
-            updateLocalStorage();
-            init();
+            try {
+                const res = await fetch(`api.php?id=${id}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json();
+                
+                if (result.status === 'success') {
+                    fetchTransactions();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error deleting data:', error);
+            }
         }
-    };
-
-    // Update Local Storage
-    const updateLocalStorage = () => {
-        localStorage.setItem('transactions', JSON.stringify(transactions));
     };
 
     // Add transaction to DOM list
@@ -145,9 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init App
     const init = () => {
         transactionListEl.innerHTML = '';
-        // Sort transactions by date descending
-        const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-        sortedTransactions.forEach(addTransactionDOM);
+        transactions.forEach(addTransactionDOM);
         updateValues();
     };
 
@@ -184,12 +208,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Create a temporary container for PDF content
         const element = document.createElement('div');
         element.style.padding = '20px';
         element.style.fontFamily = 'Inter, sans-serif';
         
-        // Build HTML for PDF
         let html = `
             <h1 style="color: #4361ee; text-align: center; margin-bottom: 20px;">Laporan Keuangan</h1>
             <p style="text-align: center; margin-bottom: 30px; color: #666;">Tanggal: ${new Date().toLocaleDateString('id-ID')}</p>
@@ -222,9 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tbody>
         `;
 
-        const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        sortedTransactions.forEach(t => {
+        transactions.forEach(t => {
             const typeIndo = t.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
             const color = t.type === 'income' ? '#2ecc71' : '#e74c3c';
             const sign = t.type === 'income' ? '+' : '-';
@@ -249,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         element.innerHTML = html;
 
-        // Configuration for html2pdf
         const opt = {
             margin:       10,
             filename:     `Laporan_Keuangan_${new Date().toLocaleDateString('id-ID').replace(/\//g, '-')}.pdf`,
@@ -258,10 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Generate PDF
         html2pdf().set(opt).from(element).save();
     });
 
-    // Start App
-    init();
+    // Start App by Fetching API
+    fetchTransactions();
 });
