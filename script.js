@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Format Date
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-        return new Date(dateString).toLocaleDateString('id-ID', options);
+        let formatted = new Date(dateString).toLocaleDateString('id-ID', options);
+        return formatted.replace(/\./g, ':');
     };
 
     // Format input currency dynamically
@@ -79,7 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const category = categorySelect.value;
 
         if (desc === '' || isNaN(amount) || amount <= 0) {
-            alert('Silakan masukkan keterangan dan jumlah yang valid.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Silakan masukkan keterangan dan jumlah yang valid (minimal Rp 1).'
+            });
             return;
         }
 
@@ -109,8 +114,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 amountInput.value = '';
                 typeSelect.value = 'income';
                 updateCategoryOptions();
+                // Toast Success
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Transaksi berhasil disimpan!',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
             } else {
-                alert(result.message);
+                Swal.fire('Gagal!', result.message, 'error');
             }
         } catch (error) {
             console.error('Error saving data:', error);
@@ -118,23 +133,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Remove transaction
-    window.removeTransaction = async (id) => {
-        if (confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) {
-            try {
-                const res = await fetch(`api.php?id=${id}`, {
-                    method: 'DELETE'
-                });
-                const result = await res.json();
-                
-                if (result.status === 'success') {
-                    fetchTransactions();
-                } else {
-                    alert(result.message);
+    window.removeTransaction = (id) => {
+        Swal.fire({
+            title: 'Hapus Transaksi?',
+            text: "Apakah Anda yakin ingin menghapus transaksi ini?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e74c3c',
+            cancelButtonColor: '#8d99ae',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const res = await fetch(`api.php?id=${id}`, {
+                        method: 'DELETE'
+                    });
+                    const resData = await res.json();
+                    
+                    if (resData.status === 'success') {
+                        fetchTransactions();
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Transaksi berhasil dihapus!',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    } else {
+                        Swal.fire('Gagal!', resData.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting data:', error);
+                    Swal.fire('Error', 'Terjadi kesalahan pada sistem.', 'error');
                 }
-            } catch (error) {
-                console.error('Error deleting data:', error);
             }
-        }
+        });
     };
 
     // Add transaction to DOM list
@@ -232,7 +267,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return matchSearch && matchType;
         });
 
-        filtered.forEach(addTransactionDOM);
+        if (filtered.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td colspan="6">
+                    <div class="empty-state">
+                        <i class="fas fa-wallet"></i>
+                        <p>Belum ada transaksi hari ini. Yuk, catat pengeluaranmu!</p>
+                    </div>
+                </td>
+            `;
+            transactionListEl.appendChild(tr);
+        } else {
+            filtered.forEach(addTransactionDOM);
+        }
     };
 
     if (searchTxInput) searchTxInput.addEventListener('input', renderTransactions);

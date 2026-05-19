@@ -63,7 +63,7 @@ body {
 
 .sidebar nav ul li a {
     text-decoration: none;
-    color: var(--gray);
+    color: #5a6778; /* Lebih kontras daripada var(--gray) */
     display: flex;
     align-items: center;
     gap: 10px;
@@ -73,7 +73,11 @@ body {
     font-weight: 500;
 }
 
-.sidebar nav ul li a:hover,
+.sidebar nav ul li a:hover {
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primary);
+}
+
 .sidebar nav ul li.active a {
     background-color: var(--primary);
     color: var(--white);
@@ -445,6 +449,25 @@ td {
 .action-btn:hover {
     color: #c0392b;
     transform: scale(1.1);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--gray);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #e2e8f0;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.empty-state p {
+    font-size: 0.95rem;
+    color: #5a6778;
 }
 
 /* Responsive */
