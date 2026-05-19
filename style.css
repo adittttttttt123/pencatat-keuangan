@@ -79,6 +79,18 @@ body {
     color: var(--white);
 }
 
+/* Watermark */
+.watermark {
+    margin-top: auto;
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.watermark strong {
+    color: var(--dark);
+    font-weight: 600;
+}
+
 /* Main Content */
 .main-content {
     flex: 1;
