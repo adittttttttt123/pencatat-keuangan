@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencatat Keuangan Pribadi</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <h2>FinTrack</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li class="active"><a href="#"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                    <li><a href="#transactions-section"><i class="fas fa-list"></i> Transaksi</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+            <header>
+                <h1>Dashboard Keuangan</h1>
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff" alt="User Avatar">
+                </div>
+            </header>
+
+            <!-- Cards -->
+            <section class="cards">
+                <div class="card balance">
+                    <div class="card-info">
+                        <h3>Total Saldo</h3>
+                        <p id="total-balance">Rp 0</p>
+                    </div>
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="card income">
+                    <div class="card-info">
+                        <h3>Pemasukan</h3>
+                        <p id="total-income">Rp 0</p>
+                    </div>
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="card expense">
+                    <div class="card-info">
+                        <h3>Pengeluaran</h3>
+                        <p id="total-expense">Rp 0</p>
+                    </div>
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+            </section>
+
+            <!-- Add Transaction and Export -->
+            <section class="actions">
+                <div class="form-container">
+                    <h2>Tambah Transaksi Baru</h2>
+                    <form id="transaction-form">
+                        <div class="form-group">
+                            <label for="desc">Keterangan</label>
+                            <input type="text" id="desc" placeholder="Contoh: Beli Makan Siang" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Jumlah (Rp)</label>
+                            <input type="number" id="amount" placeholder="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="type">Jenis</label>
+                            <select id="type" required>
+                                <option value="income">Pemasukan</option>
+                                <option value="expense">Pengeluaran</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="category-group" style="display: none;">
+                            <label for="category">Kategori</label>
+                            <select id="category">
+                                <option value="Makanan">Makanan</option>
+                                <option value="Kos">Kos</option>
+                                <option value="Edukasi">Edukasi</option>
+                                <option value="Hiburan">Hiburan</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Simpan Transaksi</button>
+                    </form>
+                </div>
+
+                <div class="export-container">
+                    <h2>Ekspor Laporan</h2>
+                    <p>Unduh laporan keuangan Anda untuk dokumentasi atau analisis lebih lanjut.</p>
+                    <div class="export-buttons">
+                        <button id="export-csv" class="btn btn-outline"><i class="fas fa-file-csv"></i> Ekspor CSV</button>
+                        <button id="export-pdf" class="btn btn-outline"><i class="fas fa-file-pdf"></i> Ekspor PDF</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions List -->
+            <section class="transactions" id="transactions-section">
+                <h2>Riwayat Transaksi</h2>
+                <div class="table-responsive">
+                    <table id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Keterangan</th>
+                                <th>Kategori</th>
+                                <th>Jenis</th>
+                                <th>Jumlah</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transaction-list">
+                            <!-- Transactions will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
